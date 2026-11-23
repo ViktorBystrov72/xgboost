@@ -466,6 +466,24 @@ test_that("xgb.cv works with stratified folds", {
   expect_true(all(cv$evaluation_log[, test_logloss_mean] != cv2$evaluation_log[, test_logloss_mean]))
 })
 
+test_that("stratified CV folds index the original rows", {
+  label <- rep(c(0, 1), each = 4)
+  data <- xgb.DMatrix(matrix(seq_along(label), ncol = 1), label = label, nthread = 1)
+  set.seed(314159)
+  cv <- xgb.cv(
+    data = data,
+    nrounds = 1,
+    nfold = 2,
+    params = list(objective = "binary:logistic", nthread = 1),
+    verbose = FALSE,
+    stratified = TRUE
+  )
+
+  expect_equal(lengths(cv$folds), c(4L, 4L))
+  expect_equal(vapply(cv$folds, function(fold) sum(label[fold]), numeric(1)), c(2, 2))
+  expect_equal(sort(unlist(cv$folds)), seq_along(label))
+})
+
 test_that("train and predict with non-strict classes", {
   # standard dense matrix input
   train_dense <- as.matrix(train$data)

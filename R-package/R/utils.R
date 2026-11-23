@@ -319,7 +319,7 @@ generate.cv.folds <- function(nfold, nrows, stratified, label, group, params) {
     if (is.character(objective)) {
       y <- convert.labels(y, objective)
     }
-    folds <- xgb.createFolds(y = y, k = nfold)
+    folds <- lapply(xgb.createFolds(y = y, k = nfold), function(fold) rnd_idx[fold])
   } else {
     # make simple non-stratified folds
     kstep <- length(rnd_idx) %/% nfold
