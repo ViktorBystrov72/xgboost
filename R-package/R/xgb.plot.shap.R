@@ -306,7 +306,7 @@ xgb.shap.data <- function(data, shap_contrib = NULL, features = NULL, top_n = 1,
   if (is.null(features) && !is.null(model)) {
     model_feature_names <- xgb.feature_names(model)
   }
-  if (is.null(model_feature_names) && xgb.num_feature(model) != ncol(data))
+  if (!is.null(model) && is.null(model_feature_names) && xgb.num_feature(model) != ncol(data))
     stop("if model has no feature_names, columns in `data` must match features in model")
 
   if (!is.null(subsample)) {
@@ -358,7 +358,7 @@ xgb.shap.data <- function(data, shap_contrib = NULL, features = NULL, top_n = 1,
   }
   shap_contrib <- reshape_3d_shap_contrib(shap_contrib, target_class)
   if (is.null(colnames(shap_contrib))) {
-    colnames(shap_contrib) <- paste0("X", seq_len(ncol(data)))
+    colnames(shap_contrib) <- c(colnames(data), "BIAS")
   }
 
   if (is.null(features)) {

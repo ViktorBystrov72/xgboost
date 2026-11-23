@@ -543,6 +543,29 @@ test_that("xgb.plot.shap works", {
   expect_equal(names(sh), c("data", "shap_contrib"))
 })
 
+test_that("xgb.plot.shap accepts contributions and features without a model", {
+  data <- cbind(first = 1:3, second = 4:6)
+  contributions <- cbind(first = c(-1, 0, 1), second = c(3, 2, 1), BIAS = 0.5)
+  result <- xgb.plot.shap(
+    data,
+    shap_contrib = contributions,
+    features = "second",
+    plot = FALSE
+  )
+
+  expect_equal(result$data, data[, "second", drop = FALSE])
+  expect_equal(result$shap_contrib, contributions[, "second", drop = FALSE])
+
+  result <- xgb.plot.shap(
+    data,
+    shap_contrib = unname(contributions),
+    features = 2L,
+    plot = FALSE
+  )
+  expect_equal(result$data, data[, "second", drop = FALSE])
+  expect_equal(result$shap_contrib, contributions[, "second", drop = FALSE])
+})
+
 test_that("xgb.plot.shap.summary works", {
   .skip_if_vcd_not_available()
   expect_silent(xgb.plot.shap.summary(data = sparse_matrix, model = bst.Tree, top_n = 2))
